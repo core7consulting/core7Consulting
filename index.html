@@ -56,18 +56,52 @@
         .tech-tag { background: white; padding: 10px 18px; border-radius: 4px; font-weight: 600; font-size: 0.8rem; color: var(--dark); border: 1px solid #eee; }
 
         /* Section Contact */
-        .contact-section { padding: 100px 8%; background: var(--white); text-align: center; }
-        .contact-container { max-width: 800px; margin: 0 auto; background: var(--light-bg); padding: 50px; border-radius: 12px; border: 1px solid #eee; }
-        .contact-info { margin-bottom: 30px; }
-        .contact-info h3 { font-size: 1.8rem; margin-bottom: 10px; }
-        .contact-info p { color: var(--gray); margin-bottom: 30px; }
+        .contact-section { padding: 80px 8%; background: var(--white); }
+        .contact-container { max-width: 920px; margin: 0 auto; background: var(--light-bg); padding: 45px; border-radius: 16px; border: 1px solid #dee2e6; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        .contact-info { margin-bottom: 24px; text-align: center; }
+        .contact-info h3 { font-size: 2rem; margin-bottom: 8px; }
+        .contact-info p { color: var(--gray); margin-bottom: 3.2rem; }
         
-        .contact-buttons { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+
+        .contact-form { display: grid; gap: 16px; }
+        .required-note { font-size: 0.9rem; color: var(--gray); margin-bottom: 16px; text-align: center; }
+        .required { color: #dc2626; }
+        .global-error { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 16px; display: none; text-align: center; }
+        .success-message { background: #d1fae5; color: #065f46; padding: 20px; border-radius: 8px; text-align: center; display: none; }
+        .form-field.error input,
+        .form-field.error select,
+        .form-field.error textarea { border-color: #dc2626; box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15); }
+        .form-field { transition: all 0.3s ease; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .form-field { display: grid; gap: 8px; text-align: left; }
+        .form-field label { font-weight: 600; font-size: 0.95rem; color: var(--dark); }
+        .form-field input,
+        .form-field select,
+        .form-field textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 14px; background: white; font-size: 0.95rem; color: #1f2937; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 179, 165, 0.15); }
+        .form-field small.error { color: #dc2626; font-size: 0.8rem; min-height: 1.1rem; }
+
+        .btn-submit { border: 0; background: var(--dark); color: #fff; font-weight: 700; letter-spacing: 0.02em; padding: 14px 24px; border-radius: 10px; cursor: pointer; transition: transform 0.2s, background 0.2s; }
+        .btn-submit:hover { background: #2f3d4b; transform: translateY(-1px); }
+        .btn-submit:disabled { cursor: not-allowed; opacity: 0.5; }
         .btn { display: inline-flex; align-items: center; padding: 16px 30px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: 0.3s; }
         .btn-mail { background: var(--dark); color: white; }
         .btn-mail:hover { background: #334155; }
-        .btn-whatsapp { background: var(--whatsapp); color: white; }
-        .btn-whatsapp:hover { opacity: 0.9; }
+
+        .form-status { margin-top: 14px; font-size: 0.94rem; min-height: 24px; text-align: center; }
+        .form-status.success { color: #059669; }
+        .form-status.error { color: #dc2626; }
+
+        .button-spinner { display: inline-block; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; width: 18px; height: 18px; margin-left: 8px; animation: spin 0.8s linear infinite; vertical-align: middle; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            nav { display: none; }
+        }
 
         footer { background: #0f172a; color: white; padding: 60px 8%; text-align: center; }
         .footer-bottom { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; opacity: 0.6; }
@@ -163,17 +197,70 @@
         <div class="contact-container">
             <div class="contact-info">
                 <h3>Parlons de votre projet</h3>
-                <p>Contactez <strong>Ghilas MAOUCHE</strong> pour un échange personnalisé sur vos enjeux IT.</p>
+                <p>Remplissez le formulaire ci-dessous et nous vous contacterons rapidement.</p>
             </div>
-            <div class="contact-buttons">
-                <a href="mailto:ghilasmaouche89@gmail.com?subject=Demande de contact - Core7 Consulting" class="btn btn-mail">
-                    Contacter par Mail <br>
-		ghilasmaouche89@gmail.com
-                </a>
-                <a href="https://wa.me/33621832019" target="_blank" class="btn btn-whatsapp">
-                    Discuter sur WhatsApp<br>
-		+33 621 83 20 19
-                </a>
+            <p class="required-note">* Champs obligatoires</p>
+            <div id="globalError" class="global-error"></div>
+            <form id="contactForm" class="contact-form" method="post" novalidate>
+                <div class="grid-2">
+                    <div class="form-field">
+                        <label for="firstName">Prénom <span class="required">*</span></label>
+                        <input id="firstName" name="first_name" type="text" placeholder="Entrez votre prénom" required>
+                        <small class="error"></small>
+                    </div>
+                    <div class="form-field">
+                        <label for="lastName">Nom <span class="required">*</span></label>
+                        <input id="lastName" name="last_name" type="text" placeholder="Entrez votre nom" required>
+                        <small class="error"></small>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-field">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input id="email" name="email" type="email" placeholder="Entrez votre adresse email" required>
+                        <small class="error"></small>
+                    </div>
+                    <div class="form-field">
+                        <label for="phone">Numéro de téléphone <span class="required">*</span></label>
+                        <input id="phone" name="phone" type="tel" placeholder="Entrez votre numéro" required>
+                        <small class="error"></small>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="requestType">Type de demande <span class="required">*</span></label>
+                    <select id="requestType" name="request_type" required>
+                        <option value="">Sélectionnez un type de demande</option>
+                        <option value="Demande de devis">Demande de devis</option>
+                        <option value="Demande d'information">Demande d'information</option>
+                        <option value="Discussion de projet">Discussion de projet</option>
+                        <option value="Support technique">Support technique</option>
+                        <option value="Partenariat">Partenariat</option>
+                        <option value="Recrutement">Recrutement</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                    <small class="error"></small>
+                </div>
+
+                <div class="form-field">
+                    <label for="subject">Objet <span class="required">*</span></label>
+                    <input id="subject" name="subject" type="text" placeholder="Entrez l'objet de votre demande" required>
+                    <small class="error"></small>
+                </div>
+
+                <div class="form-field">
+                    <label for="message">Message <span class="required">*</span></label>
+                    <textarea id="message" name="message" rows="6" placeholder="Décrivez votre demande" required></textarea>
+                    <small class="error"></small>
+                </div>
+
+                <button id="submitButton" type="submit" class="btn btn-submit">Envoyer</button>
+                <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
+            </form>
+            <div id="successMessage" class="success-message">
+                <h4>✔ Votre demande a été envoyée avec succès.</h4>
+                <p>Elle sera traitée dans les plus brefs délais.</p>
             </div>
         </div>
     </section>
@@ -185,6 +272,201 @@
             &copy; 2026 Core7 Consulting. Tous droits réservés.
         </div>
     </footer>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // EmailJS Configuration
+        const EMAILJS_PUBLIC_KEY = 'TCwBRhRwC2tV-v_rG';
+        const EMAILJS_SERVICE_ID = 'service_rlkpyph';
+        const EMAILJS_TEMPLATE_ID = 'template_4qc49do';
+
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        const form = document.getElementById('contactForm');
+        const submitButton = document.getElementById('submitButton');
+        const statusBox = document.getElementById('formStatus');
+        const globalError = document.getElementById('globalError');
+        const successMessage = document.getElementById('successMessage');
+
+        function setStatus(message, type) {
+            statusBox.textContent = message;
+            statusBox.className = 'form-status ' + (type || '');
+        }
+
+        function showGlobalError(message) {
+            globalError.textContent = message;
+            globalError.style.display = 'block';
+        }
+
+        function hideGlobalError() {
+            globalError.style.display = 'none';
+        }
+
+        function validateEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        function checkFormValidity() {
+            const firstName = form.first_name.value.trim();
+            const lastName = form.last_name.value.trim();
+            const email = form.email.value.trim();
+            const phone = form.phone.value.trim();
+            const requestType = form.request_type.value;
+            const subject = form.subject.value.trim();
+            const message = form.message.value.trim();
+
+            let isValid = true;
+
+            const fields = [
+                { name: 'first_name', value: firstName },
+                { name: 'last_name', value: lastName },
+                { name: 'email', value: email, validate: () => !email || validateEmail(email) },
+                { name: 'phone', value: phone },
+                { name: 'request_type', value: requestType },
+                { name: 'subject', value: subject },
+                { name: 'message', value: message }
+            ];
+
+            fields.forEach(field => {
+                const input = form[field.name];
+                const fieldDiv = input.closest('.form-field');
+                if (!field.value || (field.validate && !field.validate())) {
+                    fieldDiv.classList.add('error');
+                    isValid = false;
+                } else {
+                    fieldDiv.classList.remove('error');
+                }
+            });
+
+            return isValid;
+        }
+
+        function clearErrors() {
+            const fieldDivs = form.querySelectorAll('.form-field');
+            fieldDivs.forEach(div => div.classList.remove('error'));
+            hideGlobalError();
+        }
+
+        function validateOnSubmit() {
+            let hasError = false;
+            const fields = [
+                { name: 'first_name' },
+                { name: 'last_name' },
+                { name: 'email' },
+                { name: 'phone' },
+                { name: 'request_type' },
+                { name: 'subject' },
+                { name: 'message' }
+            ];
+
+            fields.forEach(field => {
+                const input = form[field.name];
+                const fieldDiv = input.closest('.form-field');
+                const value = input.value.trim();
+                if (!value) {
+                    fieldDiv.classList.add('error');
+                    hasError = true;
+                } else {
+                    fieldDiv.classList.remove('error');
+                }
+            });
+
+            // Special check for email format
+            const email = form.email.value.trim();
+            if (email && !validateEmail(email)) {
+                form.email.closest('.form-field').classList.add('error');
+                hasError = true;
+            }
+
+            return !hasError;
+        }
+
+        function getSpinner() {
+            const span = document.createElement('span');
+            span.className = 'button-spinner';
+            return span;
+        }
+
+        function setLoading(isLoading) {
+            submitButton.disabled = isLoading;
+            if (isLoading) {
+                submitButton.textContent = 'Envoi en cours';
+                submitButton.appendChild(getSpinner());
+            } else {
+                submitButton.textContent = 'Envoyer';
+            }
+        }
+
+        // Real-time validation: remove error when field becomes valid
+        const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        requiredFields.forEach(field => {
+            field.addEventListener('input', function() {
+                const fieldDiv = this.closest('.form-field');
+                const value = this.value.trim();
+                if (value) {
+                    fieldDiv.classList.remove('error');
+                }
+                if (this.name === 'email' && value && validateEmail(value)) {
+                    fieldDiv.classList.remove('error');
+                }
+            });
+            field.addEventListener('change', function() {
+                const fieldDiv = this.closest('.form-field');
+                const value = this.value.trim();
+                if (value) {
+                    fieldDiv.classList.remove('error');
+                }
+                if (this.name === 'email' && value && validateEmail(value)) {
+                    fieldDiv.classList.remove('error');
+                }
+            });
+        });
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            clearErrors();
+            setStatus('', '');
+
+            if (!validateOnSubmit()) {
+                showGlobalError('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+
+            setLoading(true);
+
+            const firstName = form.first_name.value.trim();
+            const lastName = form.last_name.value.trim();
+            const email = form.email.value.trim();
+            const phone = form.phone.value.trim();
+            const requestType = form.request_type.value;
+            const subject = form.subject.value.trim();
+            const message = form.message.value.trim();
+
+            const templateParams = {
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                phone: phone,
+                request_type: requestType,
+                subject: subject,
+                message: message
+            };
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(function (response) {
+                    form.reset();
+                    form.style.display = 'none';
+                    successMessage.style.display = 'block';
+                }, function (error) {
+                    console.error('EmailJS error:', error);
+                    setStatus('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.', 'error');
+                })
+                .finally(function () {
+                    setLoading(false);
+                });
+        });
+    </script>
 
 </body>
 </html>
